@@ -1,0 +1,44 @@
+<?php
+
+class ProductoDB {
+    private $db;
+    private $table = 'productos';
+
+    public function __construct($database) {
+        $this->db = $database->getConexion();
+    }
+
+    public function getAll(){
+        $sql = "SELECT * FROM {$this->table}";
+        $resultado = $this->db->query($sql);
+
+        if($resultado && $resultado->num_rows > 0){
+            $productos = [];
+         
+            while($row = $resultado->fetch_assoc()){
+                $productos[] = $row;
+            }
+
+            return $productos;
+        }else{
+            return [];
+        }    
+    }
+
+    public function getById($id){
+        $sql = "SELECT * FROM {$this->table} WHERE id = ?";
+        $stsm = $this->db->prepare($sql);
+        if($stsm){
+            $stsm->bind_param("i", $id);
+            $stsm->execute();
+
+            $resultado = $stsm->get_result();
+
+            if($resultado && $resultado->num_rows > 0){
+                return $resultado->fetch_assoc();
+            }
+            $stsm->close();
+        }
+        return null;
+    }
+}
