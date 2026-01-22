@@ -41,4 +41,16 @@ class ProductoDB {
         }
         return null;
     }
+
+    public function delete ($id){
+        $sql = "DELETE FROM {$this->table} WHERE id = ?";
+        $stsm = $this->db->prepare($sql);
+        if($stsm){
+            $stsm->bind_param("i", $id);
+            $stsm->execute();
+            $stsm->close();
+            return true;
+        }
+        return false;
+    }
 }
