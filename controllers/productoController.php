@@ -22,6 +22,9 @@ class ProductoController {
                     $respuesta = $this->getAllProductos();
                 }
                 break;
+            case 'POST':
+                $respuesta = $this->createProducto();
+                break;
             case 'DELETE':
                 if($this->productoID){
                     $respuesta = $this->deleteProducto($this->productoID);
@@ -61,6 +64,36 @@ class ProductoController {
                 'count' => count($productos)
             ]);
             return $respuesta;   
+    }
+
+    private function createProducto(){
+        $input = json_decode(file_get_contents("php://input"), true);
+        
+        if(!$input || !isset($input['codigo']) || !isset($input['nombre']) || 
+           !isset($input['precio']) || !isset($input['descripcion']) || !isset($input['imagen'])){
+            $respuesta['status_code_header'] = 'HTTP/1.1 400 Bad Request';
+            $respuesta['body'] = json_encode([
+                'succes' => false,
+                'error' => 'Faltan campos requeridos: codigo, nombre, precio, descripcion, imagen'
+            ]);
+            return $respuesta;
+        }
+        
+        if($this->productoDB->createProducto($input)){
+            $respuesta['status_code_header'] = 'HTTP/1.1 201 Created';
+            $respuesta['body'] = json_encode([
+                'succes' => true,
+                'message' => 'Producto creado exitosamente'
+            ]);
+            return $respuesta;
+        }
+        
+        $respuesta['status_code_header'] = 'HTTP/1.1 500 Internal Server Error';
+        $respuesta['body'] = json_encode([
+            'succes' => false,
+            'error' => 'Error al crear el producto'
+        ]);
+        return $respuesta;
     }
 
     private function deleteProducto($id){

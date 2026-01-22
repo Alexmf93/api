@@ -42,6 +42,26 @@ class ProductoDB {
         return null;
     }
 
+    public function createProducto($datos){
+        $sql = "INSERT INTO {$this->table} (codigo, nombre, precio, descripcion, imagen) 
+                VALUES (?, ?, ?, ?, ?)";
+        $stsm = $this->db->prepare($sql);
+        if($stsm){
+            $stsm->bind_param(
+                "ssdss",
+                $datos['codigo'],
+                $datos['nombre'],
+                $datos['precio'],
+                $datos['descripcion'],
+                $datos['imagen']
+            );
+            $stsm->execute();
+            $stsm->close();
+            return true;
+        }
+        return false;
+    }
+
     public function delete ($id){
         $sql = "DELETE FROM {$this->table} WHERE id = ?";
         $stsm = $this->db->prepare($sql);
