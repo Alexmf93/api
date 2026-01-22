@@ -62,6 +62,27 @@ class ProductoDB {
         return false;
     }
 
+    public function updateProducto($id, $datos){
+        $sql = "UPDATE {$this->table} SET codigo = ?, nombre = ?, precio = ?, descripcion = ?, imagen = ? 
+                WHERE id = ?";
+        $stsm = $this->db->prepare($sql);
+        if($stsm){
+            $stsm->bind_param(
+                "ssdssi",
+                $datos['codigo'],
+                $datos['nombre'],
+                $datos['precio'],
+                $datos['descripcion'],
+                $datos['imagen'],
+                $id
+            );
+            $stsm->execute();
+            $stsm->close();
+            return true;
+        }
+        return false;
+    }
+
     public function delete ($id){
         $sql = "DELETE FROM {$this->table} WHERE id = ?";
         $stsm = $this->db->prepare($sql);
