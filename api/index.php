@@ -22,6 +22,11 @@ header("Content-Type: application/json; charset=utf-8");
 require_once '../config/database.php';
 require_once '../models/productoDB.php';
 require_once '../controllers/productoController.php';
+require_once '../models/usuarioDB.php';
+require_once '../controllers/usuarioController.php';
+require_once '../models/linea_pedidoDB.php';
+require_once '../controllers/linea_pedidoController.php';
+
 
 
 //averiguar la url de la peticion
@@ -33,7 +38,8 @@ $requestMethod = $_SERVER['REQUEST_METHOD'];
 //dividir en segmentos
 $segmentos = explode('/', trim($requestUrl, '/'));
 
-if($segmentos[1] !== 'api' || !isset($segmentos[2]) || $segmentos[2] !== 'productos'){
+// Verificar que es una ruta de API
+if($segmentos[1] !== 'api' || !isset($segmentos[2])){
     $respuesta['status_code_header']=('HTTP/1.1 404 Not Found');
     echo json_encode([
         'sucess' => false,
@@ -42,14 +48,50 @@ if($segmentos[1] !== 'api' || !isset($segmentos[2]) || $segmentos[2] !== 'produc
     exit;
 }
 
-$productoId = null;
-if(isset($segmentos[3])){
-    $productoId = $segmentos[3];
-}
+$database = new Database();
 
-$database = new Database ();
-$productoController = new ProductoController($database, $requestMethod, $productoId);
-$productoController->processRequest();
+// Manejo de rutas de productos
+if($segmentos[2] === 'productos'){
+    $productoId = null;
+    if(isset($segmentos[3])){
+        $productoId = $segmentos[3];
+    }
+    
+    $productoController = new ProductoController($database, $requestMethod, $productoId);
+    $productoController->processRequest();
+}
+// Manejo de rutas de usuarios
+elseif($segmentos[2] === 'usuarios'){
+    $usuarioId = null;
+    if(isset($segmentos[3])){
+        $usuarioId = $segmentos[3];
+    }
+    
+    $usuarioController = new UsuarioController($database, $requestMethod, $usuarioId);
+    $usuarioController->processRequest();
+}
+// Manejo de rutas de líneas de pedido
+elseif($segmentos[2] === 'linea_pedido'){
+    $pedidoId = null;
+    $lineaPedidoId = null;
+    
+    if(isset($segmentos[3])){
+        $pedidoId = $segmentos[3];
+    }
+    
+    if(isset($segmentos[4])){
+        $lineaPedidoId = $segmentos[4];
+    }
+    
+    $lineaPedidoController = new Linea_pedidoController($database, $requestMethod, $pedidoId, $lineaPedidoId);
+    $lineaPedidoController->processRequest();
+}
+else{
+    echo json_encode([
+        'sucess' => false,
+        'error' => 'Ruta no encontrada'
+    ]);
+}
 
 $database->close();
 
