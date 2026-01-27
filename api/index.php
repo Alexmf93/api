@@ -26,6 +26,8 @@ require_once '../models/usuarioDB.php';
 require_once '../controllers/usuarioController.php';
 require_once '../models/linea_pedidoDB.php';
 require_once '../controllers/linea_pedidoController.php';
+require_once '../models/pedidosDB.php';
+require_once '../controllers/pedidosController.php';
 
 
 
@@ -85,6 +87,16 @@ elseif($segmentos[2] === 'linea_pedido'){
     
     $lineaPedidoController = new Linea_pedidoController($database, $requestMethod, $pedidoId, $lineaPedidoId);
     $lineaPedidoController->processRequest();
+}
+// Manejo de rutas de pedidos
+elseif($segmentos[2] === 'pedidos'){
+    $pedidoId = null;
+    if(isset($segmentos[3])){
+        $pedidoId = $segmentos[3];
+    }
+    
+    $pedidoController = new PedidoController($database, $requestMethod, $pedidoId);
+    $pedidoController->processRequest();
 }
 else{
     echo json_encode([
