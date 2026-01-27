@@ -72,11 +72,13 @@ class Linea_pedidoController {
             return $respuesta;
         }
         
-        if($this->lineaPedidoDB->create_lineaPedido($input)){
+        $resultado = $this->lineaPedidoDB->create_lineaPedido($input);
+        if($resultado && is_array($resultado)){
             $respuesta['status_code_header'] = 'HTTP/1.1 201 Created';
             $respuesta['body'] = json_encode([
                 'succes' => true,
-                'message' => 'Línea de pedido creada exitosamente'
+                'message' => 'Línea de pedido creada exitosamente',
+                'data' => $resultado
             ]);
             return $respuesta;
         }

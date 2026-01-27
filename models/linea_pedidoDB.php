@@ -2,7 +2,7 @@
 
 class LineaPedidoDB{
     private $db;
-    private $table = 'lineaPedidos';
+    private $table = 'linea_pedido';
 
     public function __construct($database) {
         $this->db = $database->getConexion();
@@ -45,7 +45,8 @@ class LineaPedidoDB{
             );
             $stsm->execute();
             $stsm->close();
-            return true;
+            // Retornar todas las líneas asociadas a ese pedido
+            return $this->getAllFromByPedidoId($datos['id_pedidos']);
         }
         return false;
 

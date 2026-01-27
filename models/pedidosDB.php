@@ -35,6 +35,7 @@ class pedidosDB{
             $resultado = $stsm->get_result();
             if($resultado && $resultado->num_rows > 0){
                 return $resultado->fetch_assoc();
+                
             }
             $stsm->close();
         }
@@ -54,10 +55,37 @@ class pedidosDB{
                 $datos['total']
             );
             $stsm->execute();
+            $insertId = $stsm->insert_id;
             $stsm->close();
+            // Retornar el pedido creado con sus líneas
+            $pedidoCreado = $this->getById($insertId);
+            if($pedidoCreado){
+                $pedidoCreado['lineas_pedido'] = $this->getLineasPedido($insertId);
+                return $pedidoCreado;
+            }
             return true;
         }
         return false;
+    }
+
+    public function getLineasPedido($pedidosId){
+        $sql = "SELECT * FROM linea_pedido WHERE id_pedidos = ?";
+        $stsm = $this->db->prepare($sql);
+        if($stsm){
+            $stsm->bind_param("i", $pedidosId);
+            $stsm->execute();
+            $resultado = $stsm->get_result();
+            if($resultado && $resultado->num_rows > 0){
+                $lineas = [];
+                while($row = $resultado->fetch_assoc()){
+                    $lineas[] = $row;
+                }
+                $stsm->close();
+                return $lineas;
+            }
+            $stsm->close();
+        }
+        return [];
     }
 
     public function updatepedidos($id, $datos){

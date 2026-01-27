@@ -51,6 +51,9 @@ class PedidoController {
         if(!$pedido){
             return $this->respuestaNoEncontrada();
         }
+        // Agregar líneas de pedido asociadas
+        $pedido['lineas_pedido'] = $this->pedidoDB->getLineasPedido($id);
+        
         $respuesta['status_code_header'] = 'HTTP/1.1 200 OK';
         $respuesta['body'] = json_encode([
             'succes' => true,
@@ -83,7 +86,18 @@ class PedidoController {
             return $respuesta;
         }
         
-        if($this->pedidoDB->createPedidos($input)){
+        $resultado = $this->pedidoDB->createPedidos($input);
+        if($resultado && is_array($resultado)){
+            $respuesta['status_code_header'] = 'HTTP/1.1 201 Created';
+            $respuesta['body'] = json_encode([
+                'succes' => true,
+                'message' => 'Pedido creado exitosamente',
+                'data' => $resultado
+            ]);
+            return $respuesta;
+        }
+        
+        if($resultado === true){
             $respuesta['status_code_header'] = 'HTTP/1.1 201 Created';
             $respuesta['body'] = json_encode([
                 'succes' => true,
