@@ -26,7 +26,11 @@ class pedidoDB{
         }    
     }
 
+    public function getById($id){
 
+    }
+    
+    
 
 
 
