@@ -20,6 +20,7 @@ header("Expires: 0");
 header("Content-Type: application/json; charset=utf-8");
 
 require_once '../config/database.php';
+require_once '../utils/Validator.php';
 require_once '../models/productoDB.php';
 require_once '../controllers/productoController.php';
 require_once '../models/usuarioDB.php';

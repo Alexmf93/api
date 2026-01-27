@@ -72,17 +72,37 @@ class UsuarioController {
     private function createUsuario(){
         $input = json_decode(file_get_contents("php://input"), true);
         
-        if(!$input || !isset($input['nombre']) || !isset($input['mail']) || 
-           !isset($input['password'])){
+        // Sanitizar datos
+        $nombre = isset($input['nombre']) ? Validator::sanitizeString($input['nombre']) : '';
+        $mail = isset($input['mail']) ? Validator::sanitizeEmail($input['mail']) : '';
+        $password = isset($input['password']) ? $input['password'] : '';
+        
+        // Validar datos
+        $validator = new Validator();
+        $validator->validateRequired($nombre, 'nombre');
+        $validator->validateRequired($password, 'password');
+        $validator->validateEmail($mail, 'mail');
+        $validator->validateMinLength($password, 8, 'password');
+        $validator->validatePassword($password, 'password');
+        
+        if ($validator->hasErrors()) {
             $respuesta['status_code_header'] = 'HTTP/1.1 400 Bad Request';
             $respuesta['body'] = json_encode([
                 'succes' => false,
-                'error' => 'Faltan campos requeridos: nombre, mail, password'
+                'error' => 'Validación fallida',
+                'details' => $validator->getErrors()
             ]);
             return $respuesta;
         }
         
-        if($this->usuarioDB->createUsuario($input)){
+        // Crear el array con datos sanitizados
+        $datosLimpios = [
+            'nombre' => $nombre,
+            'mail' => $mail,
+            'password' => $password
+        ];
+        
+        if($this->usuarioDB->createUsuario($datosLimpios)){
             $respuesta['status_code_header'] = 'HTTP/1.1 201 Created';
             $respuesta['body'] = json_encode([
                 'succes' => true,
